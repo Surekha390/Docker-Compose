@@ -1,0 +1,35 @@
+version: '3.8' #version of the Compose file format # The file format version determines which syntax and features the Compose file supports. 
+#For example, in version 3.8, you can use certain options (like networks and secrets) that may not be available in earlier formats.
+
+services:
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass  #Sets the root password for the MySQL instance.
+      #MySQL’s root user is the superuser of the database, with full access to all databases and privileges.
+      MYSQL_DATABASE: wordpress #Specifies the name of the database to be created when the container is initialized.
+      MYSQL_USER: wpuser #Creates a new MySQL(non-root) user that will have access to the database.
+      MYSQL_PASSWORD: wppass #Sets the password for the wpuser created above.
+    volumes:
+      - db_data:/var/lib/mysql #db_data volume is tored in our host which is mapped to /var/lib/mysql in container. So all data stored in our container will also be store 
+      #in our host volume db_data. To check volume  docker volume ls , docker volume inspect db_data
+      #Volumes are shared storage between containers and can be mounted to multiple containers.
+
+
+
+  wordpress:
+    image: wordpress:latest
+    restart: always
+    ports:
+      - "8080:80"   
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: wpuser
+      WORDPRESS_DB_PASSWORD: wppass
+      WORDPRESS_DB_NAME: wordpress
+    depends_on:
+      - db
+
+volumes:
+  db_data:
